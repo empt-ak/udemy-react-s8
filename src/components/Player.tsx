@@ -1,22 +1,21 @@
-import {useState} from 'react'
+import {useRef, useState} from 'react'
 
 const Player = () => {
-  const [name, setName] = useState<string>('')
-  const [submitted, setSubmitted] = useState<boolean>(false)
+  const playerName = useRef<HTMLInputElement>(null)
+  // cannot be ('') as it evaluates to true so h2 fails
+  const [name, setName] = useState<string | null>(null)
+
+
+  const handleClick = () => {
+    setName(playerName.current!.value)
+  }
 
   return (
     <section id="player">
-      <h2>Welcome {submitted ? name : 'unknown entity'}</h2>
+      <h2>Welcome {name ?? 'unknown entity'}</h2>
       <p>
-        <input type="text" value={name} onChange={(e) => {
-          if(name && submitted) {
-            setSubmitted(false)
-          }
-          setName(e.currentTarget.value)
-        }}/>
-        <button onClick={() => {
-          setSubmitted(true)
-        }}>Set Name</button>
+        <input ref={playerName} type="text"/>
+        <button onClick={handleClick}>Set Name</button>
       </p>
     </section>
   )
