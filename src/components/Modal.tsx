@@ -1,4 +1,5 @@
 import {ComponentRef, forwardRef, useImperativeHandle, useRef} from 'react'
+import {createPortal} from 'react-dom'
 
 export interface ModalProps {
   targetTime: number
@@ -27,7 +28,7 @@ const Modal = forwardRef<Handle, ModalProps>((props, ref) => {
     }
   })
 
-  return (
+  return createPortal(
     <dialog ref={dialog} className="result-modal">
       {userLost && <h2>You lost</h2>}
       {!userLost && <h2>Your score {score}</h2>}
@@ -40,7 +41,8 @@ const Modal = forwardRef<Handle, ModalProps>((props, ref) => {
       <form method="dialog">
         <button onClick={props.reset}>Close</button>
       </form>
-    </dialog>
+    </dialog>,
+    document.getElementById('modal')!
   )
 })
 
