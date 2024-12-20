@@ -13,9 +13,8 @@ export const TimerChallenge = (props: TimerChallengeProps) => {
   const [remainingTime, setRemainingTime] = useState(props.targetTime * 1000)
   const active = remainingTime > 0 && remainingTime < props.targetTime * 1000
 
-  if(remainingTime <= 0) {
+  if (remainingTime <= 0) {
     clearInterval(timer.current)
-    setRemainingTime(props.targetTime * 1000)
     dialog.current?.showModal()
   }
 
@@ -30,9 +29,13 @@ export const TimerChallenge = (props: TimerChallengeProps) => {
     dialog.current?.showModal()
   }
 
+  const handleReset = () => {
+    setRemainingTime(props.targetTime * 1000)
+  }
+
   return (
     <>
-      <Modal ref={dialog} result={'lost'} targetTime={props.targetTime} />
+      <Modal ref={dialog} targetTime={props.targetTime} remainingTime={remainingTime} reset={handleReset}/>
       <section className="challenge">
         <h2>{props.title}</h2>
         <p className="challenge-time">

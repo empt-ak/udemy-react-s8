@@ -1,8 +1,9 @@
 import {ComponentRef, forwardRef, useImperativeHandle, useRef} from 'react'
 
 export interface ModalProps {
-  result: 'won' | 'lost'
   targetTime: number
+  remainingTime: number
+  reset: () => void
 }
 
 
@@ -14,9 +15,12 @@ export type ModalRef = ComponentRef<typeof Modal>
 
 // required for react <19
 const Modal = forwardRef<Handle, ModalProps>((props, ref) => {
- const dialog = useRef<HTMLDialogElement>(null);
+  const dialog = useRef<HTMLDialogElement>(null);
 
-  useImperativeHandle(ref, () => {
+  const userLost = props.remainingTime <= 0
+  const formattedTime = (props.remainingTime / 1000).toFixed(2)
+
+    useImperativeHandle(ref, () => {
     return {
       showModal: () => dialog.current?.showModal()
     }
@@ -24,15 +28,15 @@ const Modal = forwardRef<Handle, ModalProps>((props, ref) => {
 
   return (
     <dialog ref={dialog} className="result-modal">
-      <h2>You {props.result}</h2>
+      <h2>You {userLost ? 'Lost' : 'Won'}</h2>
       <p>
         The targetTime was <strong>{props.targetTime}</strong> seconds
       </p>
       <p>
-        You stopped the timer with <strong>X seconds left</strong>
+        You stopped the timer with <strong>{formattedTime} seconds left</strong>
       </p>
       <form method="dialog">
-        <button>Close</button>
+        <button onClick={props.reset}>Close</button>
       </form>
     </dialog>
   )
