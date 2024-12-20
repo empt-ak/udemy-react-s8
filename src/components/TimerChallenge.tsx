@@ -1,5 +1,5 @@
 import {useRef, useState} from 'react'
-import Modal, {Ref} from './Modal.tsx'
+import Modal, {ModalRef} from './Modal.tsx'
 
 export interface TimerChallengeProps {
   title: string
@@ -7,23 +7,27 @@ export interface TimerChallengeProps {
 }
 
 export const TimerChallenge = (props: TimerChallengeProps) => {
+  const frequency = 20
   const timer = useRef<number>()
-  const dialog = useRef<Ref>(null)// null is required!
-  const [expired, setExpired] = useState<boolean>(false)
-  const [running, setRunning] = useState<boolean>(false)
+  const dialog = useRef<ModalRef>(null)// null is required!
+  const [remainingTime, setRemainingTime] = useState(props.targetTime * 1000)
+  const active = remainingTime > 0 && remainingTime < props.targetTime * 1000
 
+  if(remainingTime <= 0) {
+    clearInterval(timer.current)
+    setRemainingTime(props.targetTime * 1000)
+    dialog.current?.showModal()
+  }
 
   const handleStart = () => {
-    timer.current = setTimeout(() => {
-      setExpired(true)
-      dialog.current?.showModal()
-    }, props.targetTime * 1000)
-
-    setRunning(true)
+    timer.current = setInterval(() => {
+      setRemainingTime(old => old - frequency)
+    }, frequency)
   }
 
   const handleStop = () => {
-    clearTimeout(timer.current)
+    clearInterval(timer.current)
+    dialog.current?.showModal()
   }
 
   return (
@@ -34,14 +38,13 @@ export const TimerChallenge = (props: TimerChallengeProps) => {
         <p className="challenge-time">
           {props.targetTime} second{props.targetTime > 1 ? 's' : ''}
         </p>
-        {expired && <p>You lost!</p>}
         <p>
-          <button onClick={running ? handleStop : handleStart}>
-            {running ? 'Stop' : 'Start'} Challenge
+          <button onClick={active ? handleStop : handleStart}>
+            {active ? 'Stop' : 'Start'} Challenge
           </button>
         </p>
-        <p className={running ? 'active' : undefined}>
-          {running ? 'Time is running' : 'Timer inactive'}
+        <p className={active ? 'active' : undefined}>
+          {active ? 'Time is running' : 'Timer inactive'}
         </p>
       </section>
     </>
